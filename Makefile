@@ -1,12 +1,12 @@
 version=latest
 
 run:
-	go run . @a
+	@go run . $(ARGS)
 
 .PHONY: build
 build:
-	go build
+	@go build
 
 build-release:
-	go build -v -ldflags="-X main.version=$(version)"
+	@go build -v -ldflags="-X main.version=$(version)"
 
