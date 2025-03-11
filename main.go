@@ -5,8 +5,10 @@ import (
 	"os"
 )
 
+var version = "latest"
+
 func main() {
-	err := cmd.Execute()
+	err := cmd.Execute(version)
 	if err != nil {
 		os.Exit(1)
 	}
