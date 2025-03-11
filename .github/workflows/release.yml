@@ -1,0 +1,75 @@
+name: Create new github release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+    - name: Build
+      run: go build -v .
+    - name: Test
+      run: go test -v ./...
+    - name: Create tag
+      uses: actions/github-script@v5
+      with:
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: 'refs/tags/${{ github.event.inputs.version }}',
+            sha: context.sha
+          })
+    - name: Release pushed tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.event.inputs.version }}
+      run: |
+        gh release create "$tag" \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+            --generate-notes
+
+  build-linux:
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+    - run: go build .
+    - name: Add executables to releae
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.event.inputs.version }}
+      run: |
+        ls
+        gh release upload "$tag" ngw \
+            --repo="$GITHUB_REPOSITORY"
+
+  build-windows:
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+    - run: env GOOS=windows GOARCH=amd64 go build .
+    - name: Add executables to releae
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.event.inputs.version }}
+      run: |
+        ls
+        gh release upload "$tag" ngw.exe \
+            --repo="$GITHUB_REPOSITORY"
