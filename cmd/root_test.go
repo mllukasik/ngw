@@ -12,6 +12,7 @@ func cleanup() {
 }
 
 func TestExecutionExpectNoErrors(t *testing.T) {
-	err := Execute()
+	version := "latest"
+	err := Execute(version)
 	assert.Nil(t, err)
 }

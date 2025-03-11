@@ -7,6 +7,11 @@ run:
 build:
 	@go build
 
+.PHONY: test
+test:
+	@go test ./...
+
+.PHONY: build-release
 build-release:
 	@go build -v -ldflags="-X main.version=$(version)"
 
