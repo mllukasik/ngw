@@ -28,7 +28,6 @@ jobs:
     - run: |
         echo "commit_sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
         echo "version=$(make next-version)" >> $GITHUB_OUTPUT
-        echo $GITHUB_OUTPUT
       id: git
     - name: Create tag
       uses: actions/github-script@v5
@@ -43,7 +42,7 @@ jobs:
     - name: Release pushed tag
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.event.inputs.version }}
+        tag: ${{ steps.git.outputs.version }}
       run: |
         gh release create "$tag" \
             --repo="$GITHUB_REPOSITORY" \
