@@ -13,13 +13,24 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
+      with:
+        ssh-key: ${{secrets.SSH_PRIVATE}}
+    - run: git config --global user.email "tvpozytyw@gmail.com"
+    - run: git config --global user.name "github-action"
     - name: Set up Go
       uses: actions/setup-go@v4
     - name: Build
       run: make build
     - name: Test
       run: make test
+    - name: Prepare release
+      env:
+        tag: ${{ github.event.inputs.version }}
+      run: make prepare-release version=$tag
+    - run: git add .
+    - run: git commit -m "prepare release ${tag}"
+    - run: git push
     - name: Create tag
       uses: actions/github-script@v5
       with:
@@ -37,7 +48,7 @@ jobs:
       run: |
         gh release create "$tag" \
             --repo="$GITHUB_REPOSITORY" \
-            --title="${tag#v}" \
+            --title="${tag}" \
             --generate-notes
 
   build-linux:
@@ -45,6 +56,8 @@ jobs:
     needs: create-release
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.version }}
     - name: Set up Go
       uses: actions/setup-go@v4
     - name: Build release
@@ -64,6 +77,8 @@ jobs:
     needs: create-release
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.version }}
     - name: Set up Go
       uses: actions/setup-go@v4
     - name: Build release
@@ -71,7 +86,7 @@ jobs:
         tag: ${{ github.event.inputs.version }}
         GOOS: windows
         GOARCH: amd64
-      run: make build-release version=$tag
+      run: make build version=$tag
     - name: Add executables to releae
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
