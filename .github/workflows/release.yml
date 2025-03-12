@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  create-release:
+  prepare-release:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -28,6 +28,12 @@ jobs:
       env:
         tag: ${{ github.event.inputs.version }}
       run: make prepare-release version=$tag
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: prepare-release
+    steps:
+    - uses: actions/checkout@v3
     - name: Create tag
       uses: actions/github-script@v5
       with:
