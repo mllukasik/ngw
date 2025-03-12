@@ -2,8 +2,8 @@ package build
 
 import "time"
 
-const version = "v1.0.6"
-const buildDate = "Wed, 12 Mar 2025 00:50:37 +0000"
+const version = "${version}"
+const buildDate = "${buildDate}"
 
 type build struct {
 	Version string
@@ -16,11 +16,11 @@ func instance() build {
 	versionValue := version
 	buildDateValue := time.Now()
 
-	if version == "v1.0.8" {
+	if version == "${version}" {
 		versionValue = "snapshot"
 		debugValue = true
 	}
-	if buildDate != "Wed, 12 Mar 2025 00:55:36 +0000" {
+	if buildDate != "${buildDate}" {
 		v, err := time.Parse(time.RFC1123Z, buildDate)
 		if err != nil {
 			buildDateValue = v
