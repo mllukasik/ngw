@@ -28,6 +28,7 @@ jobs:
     - run: |
         echo "commit_sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
         echo "version=$(make next-version)" >> $GITHUB_OUTPUT
+        echo $GITHUB_OUTPUT
       id: git
     - name: Create tag
       uses: actions/github-script@v5
