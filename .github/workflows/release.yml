@@ -30,9 +30,6 @@ jobs:
       run: make prepare-release version=$tag
     - run: echo "commit_sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
       id: git
-    - run: echo $sha
-      env:
-        sha: ${{ steps.git.outputs.commit_sha }}
     - name: Create tag
       uses: actions/github-script@v5
       with:
