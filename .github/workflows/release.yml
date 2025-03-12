@@ -2,9 +2,6 @@ name: Create new github release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        required: true
 
 permissions:
   contents: write
@@ -12,6 +9,8 @@ permissions:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    outputs:
+      version: '${{ steps.git.outputs.version }}'
     steps:
     - uses: actions/checkout@v3
       with:
@@ -25,10 +24,10 @@ jobs:
     - name: Test
       run: make test
     - name: Prepare release
-      env:
-        tag: ${{ github.event.inputs.version }}
       run: make prepare-release
-    - run: echo "commit_sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
+    - run: |
+        echo "commit_sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
+        echo "version=$(make next-version)" >> $GITHUB_OUTPUT
       id: git
     - name: Create tag
       uses: actions/github-script@v5
@@ -37,7 +36,7 @@ jobs:
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: 'refs/tags/${{ github.event.inputs.version }}',
+            ref: 'refs/tags/${{ steps.git.outputs.version }}',
             sha: '${{ steps.git.outputs.commit_sha }}'
           })
     - name: Release pushed tag
@@ -60,17 +59,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.inputs.version }}
+        ref: ${{ needs.create-release.outputs.version }}
     - name: Set up Go
       uses: actions/setup-go@v4
     - name: Build release
-      env:
-        tag: ${{ github.event.inputs.version }}
       run: make build
     - name: Add executables to releae
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.event.inputs.version }}
+        tag: ${{ needs.create-release.outputs.version }}
       run: |
         gh release upload "$tag" ngw \
             --repo="$GITHUB_REPOSITORY"
@@ -81,19 +78,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.inputs.version }}
+        ref: ${{ needs.create-release.outputs.version }}
     - name: Set up Go
       uses: actions/setup-go@v4
     - name: Build release
       env:
-        tag: ${{ github.event.inputs.version }}
         GOOS: windows
         GOARCH: amd64
       run: make build
     - name: Add executables to releae
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.event.inputs.version }}
+        tag: ${{ needs.create-release.outputs.version }}
       run: |
         ls
         gh release upload "$tag" ngw.exe \
