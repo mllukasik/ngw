@@ -28,9 +28,6 @@ jobs:
       env:
         tag: ${{ github.event.inputs.version }}
       run: make prepare-release version=$tag
-    - run: git add .
-    - run: git commit -m "prepare release ${tag}"
-    - run: git push
     - name: Create tag
       uses: actions/github-script@v5
       with:
@@ -63,7 +60,7 @@ jobs:
     - name: Build release
       env:
         tag: ${{ github.event.inputs.version }}
-      run: make build-release version=$tag
+      run: make build
     - name: Add executables to releae
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,6 +68,10 @@ jobs:
       run: |
         gh release upload "$tag" ngw \
             --repo="$GITHUB_REPOSITORY"
+    - name: After release
+      env:
+        tag: ${{ github.event.inputs.version }}
+      run: make after-release
 
   build-windows:
     runs-on: ubuntu-latest
@@ -86,7 +87,7 @@ jobs:
         tag: ${{ github.event.inputs.version }}
         GOOS: windows
         GOARCH: amd64
-      run: make build version=$tag
+      run: make build
     - name: Add executables to releae
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
