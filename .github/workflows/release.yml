@@ -27,7 +27,7 @@ jobs:
     - name: Prepare release
       env:
         tag: ${{ github.event.inputs.version }}
-      run: make prepare-release version=$tag
+      run: make prepare-release
     - run: echo "commit_sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
       id: git
     - name: Create tag
