@@ -28,11 +28,11 @@ jobs:
       env:
         tag: ${{ github.event.inputs.version }}
       run: make prepare-release version=$tag
+    - run: sha=$(git rev-parse --verify HEAD)
     - name: Create tag
       uses: actions/github-script@v5
       with:
         script: |
-          sha=$(git rev-parse --verify HEAD)
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
