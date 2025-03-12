@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  prepare-release:
+  create-release:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -28,21 +28,16 @@ jobs:
       env:
         tag: ${{ github.event.inputs.version }}
       run: make prepare-release version=$tag
-
-  create-release:
-    runs-on: ubuntu-latest
-    needs: prepare-release
-    steps:
-    - uses: actions/checkout@v3
     - name: Create tag
       uses: actions/github-script@v5
       with:
         script: |
+          sha=$(git rev-parse --verify HEAD)
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
             ref: 'refs/tags/${{ github.event.inputs.version }}',
-            sha: context.sha
+            sha: $sha
           })
     - name: Release pushed tag
       env:
