@@ -2,6 +2,9 @@ package build
 
 import "time"
 
+const version = "${version}"
+const buildDate = "${buildDate}"
+
 type build struct {
 	Version string
 	Date    time.Time
