@@ -2,8 +2,8 @@ package build
 
 import "time"
 
-const version = "${version}"
-const buildDate = "${buildDate}"
+const version = "v1.0.10"
+const buildDate = "Wed, 12 Mar 2025 01:08:16 +0000"
 
 type build struct {
 	Version string
