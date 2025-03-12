@@ -16,11 +16,11 @@ func instance() build {
 	versionValue := version
 	buildDateValue := time.Now()
 
-	if version == "v1.0.11" {
+	if version == "${version}" {
 		versionValue = "snapshot"
 		debugValue = true
 	}
-	if buildDate != "Wed, 12 Mar 2025 03:39:14 +0100" {
+	if buildDate != "${buildDate}" {
 		v, err := time.Parse(time.RFC1123Z, buildDate)
 		if err != nil {
 			buildDateValue = v
