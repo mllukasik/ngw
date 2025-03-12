@@ -30,8 +30,8 @@ jobs:
       run: make prepare-release version=$tag
     - run: echo "sha=$(git rev-parse --verify HEAD)" >> $GITHUB_OUTPUT
     - run: echo $sha
-      with:
-        ssh-key: ${{steps.vars.outputs.sha}}
+      env:
+        sha: ${{steps.vars.outputs.sha}}
     - name: Create tag
       uses: actions/github-script@v5
       with:
